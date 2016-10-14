@@ -1,7 +1,14 @@
 from larlib import *
 
 def createPillarBases (pillarSection, pillarDistances) :
-
+	"""Create the pillars' bases as a 2D polyhedra.
+	Returns: pyplasm.xgepy.Hpc
+	
+	Keyword arguments:
+	pillarSection -- (px,py) - Section of a pillar
+	pillarDistances -- [dy1, dy2, ... ] - Pillars' distances 
+	"""
+	
 	res = []
 	invertedPillarDistances = [-i for i in pillarDistances] #Inverts the elements of the list
 	for i in invertedPillarDistances:
@@ -11,24 +18,59 @@ def createPillarBases (pillarSection, pillarDistances) :
 	
 	return PROD([QUOTE([pillarSection[0]]),QUOTE(res)])
 
-def erectPillars (pillarBases, beamSection, beamDistances) :
+
+def erectPillars (pillarBases, beamSection, beamDistances, fillHoles) :
+	"""Create the pillars as a 3D polyhedra.
+	Returns: pyplasm.xgepy.Hpc
+		
+	Keyword arguments:
+	pillarBases -- pyplasm.xgepy.Hpc - 2D polyhedra of the pillars' bases
+	beamSection -- (bx,bz) - Section of a beam
+	beamDistances -- [hz1, hz2, ... ] - Beams' distances 
+	fillHoles -- bool - Controls if the space where the beams pass must be filled or not
+	"""
+	
+	beamSectMultiplier = 1 if fillHoles else -1
 	res = []
 	for i in beamDistances:
 		res.append(i)
-		res.append(beamSection[1]*-1)
+		res.append(beamSection[1]*beamSectMultiplier)
 	
 	return PROD([pillarBases,QUOTE(res)])
 	
-def calculateModelWidth (pillarSection, pillarDistances) :
-	width = 0
-	for i in pillarDistances:
-		width += i
-	width += pillarSection[1]*(len(pillarDistances)+1)
-	return width
 	
-def createBeams (beamSection, beamDistances, modelWidth) :
-	model = QUOTE([beamSection[0]])
-	model = PROD([model,QUOTE([modelWidth])])
+def createBeamsQuote (pillarSection, pillarDistances, fillHoles) :
+	"""Create the QUOTE (a 1D polyhedra) of the beams.
+	Returns: pyplasm.xgepy.Hpc
+	
+	Keyword arguments:
+	pillarSection -- (px,py) - Section of a pillar
+	pillarDistances -- [dy1, dy2, ... ] - Pillars' distances 
+	fillHoles -- bool - Controls if the space where the pillars pass must be filled or not
+	"""
+	
+	beamSectMultiplier = 1 if fillHoles else -1
+	res = []
+	for i in pillarDistances:
+		res.append(pillarSection[1]*beamSectMultiplier)
+		res.append(i)
+	res.append(pillarSection[1]*beamSectMultiplier)
+	
+	return QUOTE(res)
+	
+	
+def createBeams (beamsQuote, beamSection, beamDistances) :
+	"""Create the pillars as a 3D polyhedra.
+	Returns: pyplasm.xgepy.Hpc
+	
+	Keyword arguments:
+	beamsQuote -- pyplasm.xgepy.Hpc - 1D polyhedra of the QUOTE of the beams
+	beamSection -- 	(bx,bz) - Section of a beam
+	beamDistances -- [hz1, hz2, ... ] - Beams' distances 
+	"""
+	
+	bases = PROD([QUOTE([beamSection[0]]),beamsQuote])
+	
 	res = []
 	
 	invertedBeamDistances = [-i for i in beamDistances] #Inverts the elements of the list
@@ -36,21 +78,36 @@ def createBeams (beamSection, beamDistances, modelWidth) :
 		res.append(i)
 		res.append(beamSection[1])
 	
-	return PROD([model,QUOTE(res)])
+	return PROD([bases,QUOTE(res)])
+
+
+def createStructure (beamSection, pillarSection, beamDistances, pillarDistances, priority) :
+	"""Generates a parametric model of a building structure in reinforced concrete.
+	Returns: pyplasm.xgepy.Hpc
 	
-def createStructure (beamSection, pillarSection, beamDistances, pillarDistances) :
+	Keyword arguments:
+	beamSection -- 	(bx,bz) - Section of a beam
+	pillarSection -- (px,py) - Section of a pillar
+	beamDistances -- [hz1, hz2, ... ] - Beams' distances
+	pillarDistances -- [dy1, dy2, ... ] - Pillars' distances
+	priority -- str - If 'pillars>beams' is passed, beams are interrupted where pillars pass. Otherwise pillars are interrupted where beams pass.
+	"""
+
+	fillPillarsHoles = priority=='pillars>beams'
+	
 	pillarBases = createPillarBases(pillarSection, pillarDistances)
-	pillars = erectPillars(pillarBases, beamSection, beamDistances)
-	modelWidth = calculateModelWidth(pillarSection, pillarDistances)
-	beams = createBeams(beamSection, beamDistances, modelWidth)
+	pillars = erectPillars(pillarBases, beamSection, beamDistances, fillPillarsHoles)
+	beamsQuote = createBeamsQuote(pillarSection, pillarDistances, not fillPillarsHoles)
+	beams = createBeams(beamsQuote, beamSection, beamDistances)
+	
 	model = STRUCT([pillars,beams])
 	model = STRUCT([T(1)(pillarSection[0]/-2.0),model])
 	return STRUCT([T(2)(pillarSection[1]/-2.0),model])
 	
-pillarDistances = [3, 2, 2]
+pillarDistances = [4, 2.5, 2.5]
 beamDistances = [4, 2, 2]
-pillarSection = (0.5, 0.5)
-beamSection = (0.5, 0.7)
+pillarSection = (0.4, 0.4)
+beamSection = (0.4, 0.4)
 
-model = createStructure(beamSection, pillarSection, beamDistances, pillarDistances)
+model = createStructure(beamSection, pillarSection, beamDistances, pillarDistances, 'pillars>beams')
 VIEW(model)
