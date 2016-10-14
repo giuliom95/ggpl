@@ -100,14 +100,15 @@ def createStructure (beamSection, pillarSection, beamDistances, pillarDistances,
 	beamsQuote = createBeamsQuote(pillarSection, pillarDistances, not fillPillarsHoles)
 	beams = createBeams(beamsQuote, beamSection, beamDistances)
 	
-	model = STRUCT([pillars,beams])
-	model = STRUCT([T(1)(pillarSection[0]/-2.0),model])
-	return STRUCT([T(2)(pillarSection[1]/-2.0),model])
+	pillars = STRUCT([T(1)(pillarSection[0]/-2.0),T(2)(pillarSection[1]/-2.0),pillars])
+	beams = STRUCT([T(1)(beamSection[0]/-2.0),T(2)(pillarSection[1]/-2.0),beams])
+
+	return STRUCT([pillars,beams])
 	
 pillarDistances = [4, 2.5, 2.5]
 beamDistances = [4, 2, 2]
 pillarSection = (0.4, 0.4)
-beamSection = (0.4, 0.4)
+beamSection = (0.3, 0.4)
 
 model = createStructure(beamSection, pillarSection, beamDistances, pillarDistances, 'pillars>beams')
 VIEW(model)
