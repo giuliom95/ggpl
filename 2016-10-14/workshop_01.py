@@ -9,14 +9,14 @@ def createPillarBases (pillarSection, pillarDistances) :
 	pillarDistances -- [dy1, dy2, ... ] - Pillars' distances 
 	"""
 	
-	res = []
+	tempList = []
 	invertedPillarDistances = [-i for i in pillarDistances] #Inverts the elements of the list
 	for i in invertedPillarDistances:
-		res.append(pillarSection[1])
-		res.append(i)
-	res.append(pillarSection[1])
+		tempList.append(pillarSection[1])
+		tempList.append(i)
+	tempList.append(pillarSection[1])
 	
-	return PROD([QUOTE([pillarSection[0]]),QUOTE(res)])
+	return PROD([QUOTE([pillarSection[0]]),QUOTE(tempList)])
 
 
 def erectPillars (pillarBases, beamSection, beamDistances, fillHoles) :
@@ -31,12 +31,12 @@ def erectPillars (pillarBases, beamSection, beamDistances, fillHoles) :
 	"""
 	
 	beamSectMultiplier = 1 if fillHoles else -1
-	res = []
+	tempList = []
 	for i in beamDistances:
-		res.append(i)
-		res.append(beamSection[1]*beamSectMultiplier)
+		tempList.append(i)
+		tempList.append(beamSection[1]*beamSectMultiplier)
 	
-	return PROD([pillarBases,QUOTE(res)])
+	return PROD([pillarBases,QUOTE(tempList)])
 	
 	
 def createBeamsQuote (pillarSection, pillarDistances, fillHoles) :
@@ -50,13 +50,13 @@ def createBeamsQuote (pillarSection, pillarDistances, fillHoles) :
 	"""
 	
 	beamSectMultiplier = 1 if fillHoles else -1
-	res = []
+	tempList = []
 	for i in pillarDistances:
-		res.append(pillarSection[1]*beamSectMultiplier)
-		res.append(i)
-	res.append(pillarSection[1]*beamSectMultiplier)
+		tempList.append(pillarSection[1]*beamSectMultiplier)
+		tempList.append(i)
+	tempList.append(pillarSection[1]*beamSectMultiplier)
 	
-	return QUOTE(res)
+	return QUOTE(tempList)
 	
 	
 def createBeams (beamsQuote, beamSection, beamDistances) :
@@ -71,14 +71,14 @@ def createBeams (beamsQuote, beamSection, beamDistances) :
 	
 	bases = PROD([QUOTE([beamSection[0]]),beamsQuote])
 	
-	res = []
+	tempList = []
 	
 	invertedBeamDistances = [-i for i in beamDistances] #Inverts the elements of the list
 	for i in invertedBeamDistances:
-		res.append(i)
-		res.append(beamSection[1])
+		tempList.append(i)
+		tempList.append(beamSection[1])
 	
-	return PROD([bases,QUOTE(res)])
+	return PROD([bases,QUOTE(tempList)])
 
 
 def createStructure (beamSection, pillarSection, beamDistances, pillarDistances, priority) :
