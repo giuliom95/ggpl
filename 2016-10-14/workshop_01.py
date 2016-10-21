@@ -108,7 +108,7 @@ def createStructure (beamSection, pillarSection, beamDistances, pillarDistances,
 pillarDistances = [4, 2.5, 2.5]
 beamDistances = [4, 2, 2]
 pillarSection = (0.4, 0.4)
-beamSection = (0.3, 0.4)
+beamSection = (0.25, 0.4)
 
 model = createStructure(beamSection, pillarSection, beamDistances, pillarDistances, 'pillars>beams')
 VIEW(model)
