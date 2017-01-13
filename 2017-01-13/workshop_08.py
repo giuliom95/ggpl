@@ -71,6 +71,7 @@ def gen_windows(filename, height, foot_height, thickness=DEF_THICKNESS):
 def gen_doors(filename, height, thickness=DEF_THICKNESS):
     return gen_windows(filename, height, 0, thickness)
 
+
 if __name__=='__main__':
     struttura = S([2])([-1])(DIFFERENCE([
         STRUCT([
