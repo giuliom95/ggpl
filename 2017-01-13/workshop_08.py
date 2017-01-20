@@ -24,9 +24,17 @@ def gen_ext_walls_plan(filename, thickness):
 
 def gen_int_walls_plan(filename, thickness):    
     verts = line_parser(filename)
+    
     facets = [[i,i+1] for i in range(1,len(verts),2)]
     
-    return OFFSET([thickness]*2)(MKPOL([verts,facets,[1]]))
+    pols = MKPOL([verts,facets,[1]])
+    t = thickness / 2.
+    
+    return UNION([
+        OFFSET([+t, +t])(pols),
+        OFFSET([-t, +t])(pols),
+        OFFSET([+t, -t])(pols),
+        OFFSET([-t, -t])(pols)])
 
     
 def gen_walls(filename, thickness, height, external):
