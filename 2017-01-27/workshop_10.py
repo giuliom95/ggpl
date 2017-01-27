@@ -74,24 +74,27 @@ def gen_doors(path, fn, height):
     generates a door and a doorway using the passed function
     """
     lines = np.array(line_parser(path))
-    hpcs = []
-    boxes = []
-    for p1, p2 in lines:
-        v = p2-p1
-        v_len = np.linalg.norm(v)
-        angle = np.arctan2(v[1], v[0])
-        hpc = STRUCT([
-                S(3)(-1),
-                T(3)(-height),
-                T([1, 2])(p1),
-                R([1, 2])(angle),
-                MAP([S1, S3, S2]),
-                fn(v_len, height, 1)])
-        hpcs.append(hpc)
-        boxes.append(BOX([1,2,3])(hpc))
-    doors = STRUCT(hpcs)
-    doorways = STRUCT(boxes)
-    return doors, doorways
+    if len(lines) > 0:
+        hpcs = []
+        boxes = []
+        for p1, p2 in lines:
+            v = p2-p1
+            v_len = np.linalg.norm(v)
+            angle = np.arctan2(v[1], v[0])
+            hpc = STRUCT([
+                    S(3)(-1),
+                    T(3)(-height),
+                    T([1, 2])(p1),
+                    R([1, 2])(angle),
+                    MAP([S1, S3, S2]),
+                    fn(v_len, height, 1)])
+            hpcs.append(hpc)
+            boxes.append(BOX([1,2,3])(hpc))
+        doors = STRUCT(hpcs)
+        doorways = STRUCT(boxes)
+        return doors, doorways
+    else:
+        return Q(.0001), Q(.0001)
     
 def gen_stairs_foot(path):
     """
@@ -225,7 +228,7 @@ def gen_module(root_path, walls_height=3, floor_thickness=.3):
     floors_hpc = DIFFERENCE([floors_hpc, cubes_hpc])
     
     return STRUCT([
-        SKEL_1(walls_hpc),
+        walls_hpc,
         windows_hpc,
         doors_hpc,
         handrails_hpc,
