@@ -151,6 +151,10 @@ def ggpl_workshop_09(vts, fcs, roof_height, angle):
     data = [get_roof_point(i, vts, fcs, upper_plane, angle)
         for i in range(1, len(vts)+1)]
     
+    new_vts = [p for p,_ in data]
+    print new_vts
+    VIEW(MKPOL([new_vts,fcs,[1]]))
+    
     for i in range(len(data)):
         nexti = data[i][1] - 1
         hpcs.append(MKPOL([
@@ -160,13 +164,25 @@ def ggpl_workshop_09(vts, fcs, roof_height, angle):
             [[1, 2, 3, 4]],
             [1]]))
     
-    print hpcs
+    #print hpcs
     
     return STRUCT([
         STRUCT(hpcs),
         MKPOL([[p for p, _ in data], fcs, [1]])])
 
 if __name__=='__main__':
+    
+    # L semplice
+    vts = [
+        [0,0,0], #1
+        [5,0,0], #2
+        [5,2,0], #3
+        [2,2,0], #4
+        [2,5,0], #5
+        [0,5,0]] #6
+    fcs = [
+        [1,2,3,4],
+        [1,4,5,6]]
     
     """
     # L smussata
@@ -185,9 +201,8 @@ if __name__=='__main__':
         [4,5,6,7]]
     """
     
-    
+    """
     # Quadrati intersecati
-    # Errore angoli
     vts = [
         [0, 0, 0],
         [4, 0, 0],
@@ -200,7 +215,7 @@ if __name__=='__main__':
     fcs = [
         [1, 2, 3, 7, 8],
         [3, 4, 5, 6, 7]]
-    
+    """
     
     """
     # Stella
@@ -237,6 +252,6 @@ if __name__=='__main__':
         [5, 6, 7],
         [1, 7, 8]]
     """
-    
-    VIEW(ggpl_workshop_09(vts, fcs, 1, np.pi/4))
+    VIEW(MKPOL([vts,fcs,[1]]))
+    VIEW(ggpl_workshop_09(vts, fcs, 1, np.pi/6))
         
