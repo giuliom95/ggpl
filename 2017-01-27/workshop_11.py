@@ -1,6 +1,5 @@
 
 # Final Workshop
-# Reference: https://www.google.it/maps/@37.8149362,-122.235095,18z
 
 from pyplasm import *
 import houses as h
@@ -34,7 +33,8 @@ def surface(x_div, y_div):
         MAP(BEZIER(S2)([f1,f2]))(PROD([ifn(1)(x_div),ifn(1)(y_div)]))
     
 def base():
-    return TEXTURE('wood.jpg')(S(3)(-1)(CUBOID([289,188,4])))
+    return TEXTURE(['wood.jpg',True,True, 0,0, PI/2, 1,1, 0,0 ]) \
+        (S(3)(-1)(CUBOID([289,188,4])))
 
     
 def houses():
@@ -58,15 +58,36 @@ def houses():
         T([1,2])([238,104])(R([1,2])(-115*k)(h.rectangular_house([15,17,10]))),
         T([1,2])([253,136])(R([1,2])(-6*k)(h.rectangular_house([16,18,10]))),
         T([1,2])([271,82])(R([1,2])(117*k)(S(1)(-1)(h.q_shaped_house([17,23,8])))),
-        T([1,2])([260,36])(R([1,2])(10*k)(h.rectangular_house([17,19,10])))
-        
+        T([1,2])([260,36])(R([1,2])(10*k)(h.rectangular_house([17,19,10]))),
+        T([1,2])([15,72])(R([1,2])(-28*k)(h.rectangular_house([14,19,9])))
     ])
+    
+
+def roads():
+    stephanie1 = hermite([0,123,0], [238,171,0], [194,-117,0], [46,520,0])
+    stephanie2 = hermite([0,134,0], [229,171,0], [194,-104,0], [57,500,0])
+    irondale1 = hermite([202, 92, 0], [230, 27, 0], [80,-82,0], [0,-50,0])
+    irondale2 = hermite([209, 97, 0], [239, 27, 0], [80,-82,0], [0,-50,0])
+    skouras1 = hermite([161, 188, 0], [289, 164, 0], [84, -37, 0], [88, 0, 0])
+    skouras2 = hermite([189, 188, 0], [289, 173, 0], [75, -23, 0], [88, 0, 0])
+    
+    s = surface(30, 1)
+    return TEXTURE('wood.jpg')(
+        STRUCT([
+            T(3)(.1),
+            s(stephanie1, stephanie2),
+            s(irondale1, irondale2),
+            s(skouras1, skouras2),
+            MKPOL([[[110,25],[119,25],[123,72],[114,72]], [[1,2,3,4]], [1]])
+        ])
+    )
     
 
 if __name__=='__main__':
     
     model = STRUCT([
         houses(),
-        base()
+        base(),
+        roads()
     ])
     VIEW(S(2)(-1)(model))
