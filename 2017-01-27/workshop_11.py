@@ -3,25 +3,11 @@
 
 from pyplasm import *
 import houses as h
+from trees import tree
 
 PI = 3.141592654
 
-def hermite(p1,p2,t1,t2):
-    """
-    Generates an hermite curve with two points and two vectors
-    """
-    h1 = lambda u: 2*u**3 -3*u**2 + 1
-    h2 = lambda u: -2*u**3 + 3*u**2
-    h3 = lambda u: u**3 -2*u**2 + u
-    h4 = lambda u: u**3 - u**2
-    def hermite0(p):
-        u = p[0]
-        basis = [h1(u),h2(u),h3(u),h4(u)]
-        handles = TRANS([p1,p2,t1,t2])
-        out = AA(INNERPROD)(DISTL([basis,handles]))
-        return out
-    return hermite0
-    
+
 
 def surface(x_div, y_div):
     """
@@ -64,12 +50,12 @@ def houses():
     
 
 def roads():
-    stephanie1 = hermite([0,123,0], [238,171,0], [194,-117,0], [46,520,0])
-    stephanie2 = hermite([0,134,0], [229,171,0], [194,-104,0], [57,500,0])
-    irondale1 = hermite([202, 92, 0], [230, 27, 0], [80,-82,0], [0,-50,0])
-    irondale2 = hermite([209, 97, 0], [239, 27, 0], [80,-82,0], [0,-50,0])
-    skouras1 = hermite([161, 188, 0], [289, 164, 0], [84, -37, 0], [88, 0, 0])
-    skouras2 = hermite([189, 188, 0], [289, 173, 0], [75, -23, 0], [88, 0, 0])
+    stephanie1 = HERMITE([[0,123,0], [238,171,0], [194,-117,0], [46,520,0]])
+    stephanie2 = HERMITE([[0,134,0], [229,171,0], [194,-104,0], [57,500,0]])
+    irondale1 = HERMITE([[202, 92, 0], [230, 27, 0], [80,-82,0], [0,-50,0]])
+    irondale2 = HERMITE([[209, 97, 0], [239, 27, 0], [80,-82,0], [0,-50,0]])
+    skouras1 = HERMITE([[161, 188, 0], [289, 164, 0], [84, -37, 0], [88, 0, 0]])
+    skouras2 = HERMITE([[189, 188, 0], [289, 173, 0], [75, -23, 0], [88, 0, 0]])
     
     s = surface(30, 1)
     return TEXTURE('wood.jpg')(
@@ -83,11 +69,28 @@ def roads():
     )
     
 
+def trees():
+    
+    tr = lambda x,y: T([1,2])([x, y])(S([1,2,3])([4.5,4.5,4.5])(tree()))
+    
+    xs = [ 81, 123, 91, 120, 106, 127, 51, 68, 20, 37, 38, 47, 11, 64, 61]
+    ys = [101, 134, 94,  87,  64,  65, 81, 78, 95, 93, 66, 31, 55, 37, 25]
+    
+    xs += [ 8, 27,  5,   7,  17,  39,  51,  61, 88, 99, 104, 120, 134, 150]
+    ys += [19,  8, 78, 110, 129, 116, 105, 106, 21, 29,  10,  10,  23,  10]
+    
+    xs += [149, 156, 160, 144, 148, 157, 170, 193, 207, 193, 201, 220, 237]
+    ys += [ 59,  66,  49,  86,  31,  67,  96,  74,  75, 107, 117,  97,  77]
+    
+    return STRUCT(map(tr, xs, ys))
+    
+
 if __name__=='__main__':
     
     model = STRUCT([
         houses(),
         base(),
-        roads()
+        roads(),
+        trees()
     ])
     VIEW(S(2)(-1)(model))
